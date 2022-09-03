@@ -1,3 +1,5 @@
+import server
+
 PORT_FILE_NAME = "port.info"
 
 
@@ -12,4 +14,8 @@ def read_port():
 
 if __name__ == '__main__':
     print("This is the server")
-    print(read_port())
+    port = read_port()
+    print("The port is", port)
+    main_server = server.Server(port)
+
+    main_server.start()
