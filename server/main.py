@@ -1,4 +1,5 @@
 import server
+import db
 
 PORT_FILE_NAME = "port.info"
 
@@ -13,6 +14,8 @@ def read_port():
 
 
 if __name__ == '__main__':
+
+    db.get_or_create_db("server.db")
     print("This is the server")
     port = read_port()
     print("The port is", port)
