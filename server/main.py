@@ -15,7 +15,7 @@ def read_port():
 
 if __name__ == '__main__':
 
-    db.get_or_create_db("server.db")
+    db.get_or_create_db()
     print("This is the server")
     port = read_port()
     print("The port is", port)

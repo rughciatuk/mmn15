@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,12 +128,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="client.cpp" />
+    <ClCompile Include="crypto_wrapper\AESWrapper.cpp" />
+    <ClCompile Include="crypto_wrapper\Base64Wrapper.cpp" />
+    <ClCompile Include="crypto_wrapper\RSAWrapper.cpp" />
     <ClCompile Include="files.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="protocol.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="client.h" />
+    <ClInclude Include="crypto_wrapper\AESWrapper.h" />
+    <ClInclude Include="crypto_wrapper\Base64Wrapper.h" />
+    <ClInclude Include="crypto_wrapper\RSAWrapper.h" />
     <ClInclude Include="files.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="protocol.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

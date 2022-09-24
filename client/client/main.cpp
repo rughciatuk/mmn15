@@ -26,8 +26,22 @@ int main()
 	result = connect(connect_socket, (sockaddr*)&server_sockaddr, sizeof(server_sockaddr));
 	if (result == SOCKET_ERROR)
 	{
-		std::cout << "Could not connect to the server" << WSAGetLastError() << std::endl;
+		std::cout << "Could not connect to the server: " << WSAGetLastError() << std::endl;
 	}
+
+	// TODO: Need to check if me.info exists and only then register to the server.
+
+
+	// Creat the client;
+	Client main_client(connect_socket);
+
+	RSAPrivateWrapper temp;
+
+	temp.getPublicKey();
+
+	// TODO: Need to check if we have user file before.
+	main_client.register_to_server(username);
+
 
 	return 0;
 }

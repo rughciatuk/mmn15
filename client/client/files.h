@@ -15,6 +15,7 @@
 #define TRANSFER_FILE "transfer.info"
 #define TRANSFER_PORT_DELEIMTER ':'
 
-#endif // !FILES_H
 
 bool get_data_from_transfer_file(sockaddr_in& server_sockaddr, std::string& username, std::string file_to_upload);
+
+#endif // !FILES_H
