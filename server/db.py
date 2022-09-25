@@ -49,3 +49,25 @@ def register_user(username: str) -> bytes:
 
         new_uuid = select_cursor.fetchall()[0][0]
         return new_uuid
+
+
+def update_public_key(user_uuid: bytes, public_key: bytes) -> bool:
+    with sqlite3.connect(DB_PATH) as con:
+        update_cursor = con.execute("""
+        UPDATE clients
+        SET PublicKey = ?
+        WHERE ID = ?
+        """, (public_key, user_uuid))
+
+        return update_cursor.rowcount == 1
+
+
+def update_AES_key(user_uuid: bytes, aes_key: bytes) -> bool:
+    with sqlite3.connect(DB_PATH) as con:
+        update_cursor = con.execute("""
+            UPDATE clients
+            SET AESKey = ?
+            WHERE ID = ?
+        """, (aes_key, user_uuid))
+
+        return update_cursor.rowcount == 1

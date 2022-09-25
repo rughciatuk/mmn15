@@ -2,7 +2,7 @@
 
 int main()
 {
-	sockaddr_in server_sockaddr = { 0 };
+	sockaddr_in server_sockaddr = {0};
 	std::string username;
 	std::string file_to_upload;
 
@@ -11,7 +11,7 @@ int main()
 
 	WSADATA wsa_data;
 	int result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
-	if (result != NO_ERROR) 
+	if (result != NO_ERROR)
 	{
 		std::cout << "Could not start wsa: " << result << std::endl;
 	}
@@ -29,19 +29,18 @@ int main()
 		std::cout << "Could not connect to the server: " << WSAGetLastError() << std::endl;
 	}
 
-	// TODO: Need to check if me.info exists and only then register to the server.
 
-
-	// Creat the client;
-	Client main_client(connect_socket);
-
-	RSAPrivateWrapper temp;
-
-	temp.getPublicKey();
+	// Create the client;
+	Client main_client(connect_socket, username);
 
 	// TODO: Need to check if we have user file before.
-	main_client.register_to_server(username);
-
-
+	if (main_client.op_register())
+	{
+		// We can save the client data
+		main_client.save_me_info();
+		// Sending out public key
+		main_client.op_send_public_key();
+	}
 	return 0;
 }
+

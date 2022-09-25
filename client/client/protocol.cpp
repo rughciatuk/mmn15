@@ -1,6 +1,6 @@
 #include "protocol.h"
 
-request_header::request_header(uint8_t client_id[CLIENT_ID_LEN], uint8_t version, request_code code,
+request_header::request_header(const uint8_t client_id[CLIENT_ID_LEN], uint8_t version, request_code code,
                                uint32_t payload_size)
 {
 	if (client_id == nullptr)
@@ -17,7 +17,7 @@ request_header::request_header(uint8_t client_id[CLIENT_ID_LEN], uint8_t version
 	this->payload_size = payload_size;
 }
 
-request_header::request_header(uint8_t client_id[CLIENT_ID_LEN], request_code code, uint32_t payload_size) :
+request_header::request_header(const uint8_t client_id[CLIENT_ID_LEN], request_code code, uint32_t payload_size) :
 	request_header(
 		client_id, DEFAULT_VERSION, code, payload_size)
 {
