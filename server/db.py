@@ -22,11 +22,13 @@ def get_or_create_db():
         # Creating the files table.
         con.execute("""
             CREATE TABLE IF NOT EXISTS files(
-                ID BLOB PRIMARY KEY,
+                ID GUID PRIMARY KEY,
                 FileName TEXT,
                 PathName TEXT,
                 Verified BOOLEAN
             );""")
+
+        con.commit()
 
 
 def check_user_exists(username: str) -> bool:
@@ -42,6 +44,8 @@ def register_user(username: str) -> bytes:
         insert_cursor = con.execute("""
         INSERT INTO clients (ID, Name, LastSeen) VALUES (?, ?, DateTime('now'));
         """, (uuid.uuid4(), username))
+
+        con.commit()
 
         select_cursor = con.execute("""
         SELECT ID FROM clients WHERE Name = ?
@@ -59,6 +63,8 @@ def update_public_key(user_uuid: bytes, public_key: bytes) -> bool:
         WHERE ID = ?
         """, (public_key, user_uuid))
 
+        con.commit()
+
         return update_cursor.rowcount == 1
 
 
@@ -70,4 +76,27 @@ def update_AES_key(user_uuid: bytes, aes_key: bytes) -> bool:
             WHERE ID = ?
         """, (aes_key, user_uuid))
 
+        con.commit()
+
         return update_cursor.rowcount == 1
+
+
+def get_AES_key(user_uuid: bytes) -> bytes:
+    with sqlite3.connect(DB_PATH) as con:
+        get_cursor = con.execute("""
+            SELECT AESKey
+            FROM clients
+            WHERE ID = ?
+        """, (user_uuid,))
+
+        return get_cursor.fetchall()[0][0]
+
+
+def new_file(file_name: str, path_name: str, verified: bool):
+    with sqlite3.connect(DB_PATH) as con:
+        con.execute("""
+        INSERT INTO files (ID, FileName, PathName, Verified) VALUES (?, ?, ?, ?);
+        """, (uuid.uuid4(), file_name, path_name, verified))
+        con.commit()
+
+

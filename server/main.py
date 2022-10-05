@@ -13,8 +13,7 @@ def read_port():
         return 1234
 
 
-if __name__ == '__main__':
-
+def main():
     db.get_or_create_db()
     print("This is the server")
     port = read_port()
@@ -22,3 +21,7 @@ if __name__ == '__main__':
     main_server = server.Server(port)
 
     main_server.start()
+
+
+if __name__ == '__main__':
+    main()

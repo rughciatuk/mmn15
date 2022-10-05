@@ -47,6 +47,13 @@ struct request_payload_pubic_key
 	char public_key[PUBLIC_KEY_SIZE];
 };
 
+struct request_payload_send_file
+{
+	uint8_t client_id[CLIENT_ID_LEN]{};
+	uint32_t content_size;
+	char file_name[MAX_NAME_LEN];
+};
+
 class response_header
 {
 public:
@@ -69,6 +76,14 @@ struct response_payload_public_key_received
 {
 	uint8_t client_id[CLIENT_ID_LEN];
 	uint8_t enc_aes_key[AES_KEY_ENC_LEN];
+};
+
+struct response_payload_file_received_crc
+{
+	uint8_t client_id[CLIENT_ID_LEN];
+	uint32_t content_size;
+	char file_name[MAX_NAME_LEN];
+	uint32_t cksum;
 };
 #pragma pack(pop)
 

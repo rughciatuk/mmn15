@@ -54,6 +54,18 @@ class RequestPayloadPublicKey:
         self.name = data.split(b'\x00')[0].decode("ascii")
 
 
+@dataclass
+class RequestPayloadSendFile:
+    client_id: bytes
+    content_size: int
+    file_name: str
+
+    def __init__(self, data: bytes):
+        print(data)
+        (self.client_id, self.content_size, temp_name) = struct.unpack("<16sI255s", data)
+        self.file_name = temp_name.split(b'\x00')[0].decode("ascii")
+
+
 # -------------------------------------------------------------------
 #                           Responses
 # -------------------------------------------------------------------
@@ -100,7 +112,6 @@ class ResponsePayloadGeneralError(ResponsePayload):
         return self.error_text.encode("ascii") + b'\x00'  # Adding the null terminator
 
 
-# successful
 @dataclass
 class ResponsePayloadSuccessfulRegistration(ResponsePayload):
     client_id: bytes
@@ -128,3 +139,36 @@ class ResponsePayloadPublicKeyReceived(ResponsePayload):
 
     def pack(self):
         return self.client_id + self.enc_AES_key
+
+
+@dataclass
+class ResponsePayloadFileReceived(ResponsePayload):
+    client_id: bytes
+    content_size: int
+    file_name: bytes
+    cksum: int
+
+    def __len__(self):
+        return 16 + 4 + 255 + 4
+
+    def response_code(self) -> ResponseCode:
+        return ResponseCode.file_correct_CRC
+
+    def pack(self):
+        content_size = struct.pack("<I", self.content_size)
+        file_name = bytes((self.file_name + ("\x00" * 255))[:255], "ascii")
+        cksum = struct.pack("<I", self.cksum)
+
+        return self.client_id + content_size + file_name + cksum
+
+
+@dataclass
+class ResponsePayloadMessageReceived(ResponsePayload):
+    def __len__(self):
+        return 0
+
+    def response_code(self) -> ResponseCode:
+        return ResponseCode.message_received
+
+    def pack(self) -> bytes:
+        return b''

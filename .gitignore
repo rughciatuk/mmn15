@@ -6,3 +6,5 @@ client/client/x64/
 server/__pycache__/
 
 server/server.db
+
+server/data

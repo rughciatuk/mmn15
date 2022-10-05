@@ -30,17 +30,21 @@ int main()
 	}
 
 
-	// Create the client;
-	Client main_client(connect_socket, username);
+	// Trying to read me file.
+	std::string private_key;
+	uint8_t client_id[CLIENT_ID_LEN];
 
-	// TODO: Need to check if we have user file before.
-	if (main_client.op_register())
+
+	// Create the client;
+	Client main_client = Client::create(connect_socket, username);
+
+	// TODO: Sending the file.
+
+	if(main_client.op_send_file(file_to_upload))
 	{
-		// We can save the client data
-		main_client.save_me_info();
-		// Sending out public key
-		main_client.op_send_public_key();
+		std::cout << "File uploaded to the server." << std::endl;
 	}
+
 	return 0;
 }
 

@@ -129,6 +129,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="client.cpp" />
+    <ClCompile Include="crc.cpp" />
     <ClCompile Include="crypto_wrapper\AESWrapper.cpp" />
     <ClCompile Include="crypto_wrapper\Base64Wrapper.cpp" />
     <ClCompile Include="crypto_wrapper\RSAWrapper.cpp" />
@@ -138,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="client.h" />
+    <ClInclude Include="crc.h" />
     <ClInclude Include="crypto_wrapper\AESWrapper.h" />
     <ClInclude Include="crypto_wrapper\Base64Wrapper.h" />
     <ClInclude Include="crypto_wrapper\RSAWrapper.h" />
