@@ -15,10 +15,7 @@ class Server(threading.Thread):
         server_socket.listen(5)
 
         while True:
-            print("Waiting for a new connection")
             client_sock, client_addr = server_socket.accept()
-            print("A new connection from", client_addr)
             connection.ClientConnection(client_sock, client_addr).start()
 
-        print("Closing")
         server_socket.close()

@@ -15,6 +15,7 @@ class RequestCode(enum.IntEnum):
 
 class ResponseCode(enum.IntEnum):
     successful_registration = 2100
+    failed_registration = 2101
     public_key_received = 2102
     file_correct_CRC = 2103
     message_received = 2104
@@ -112,20 +113,6 @@ class ResponsePayload(abc.ABC):
 
 
 @dataclass
-class ResponsePayloadGeneralError(ResponsePayload):
-    error_text: str
-
-    def __len__(self):
-        return len(self.error_text) + 1  # For the null terminator
-
-    def response_code(self) -> ResponseCode:
-        return ResponseCode.server_general_error
-
-    def pack(self) -> bytes:
-        return self.error_text.encode("ascii") + b'\x00'  # Adding the null terminator
-
-
-@dataclass
 class ResponsePayloadSuccessfulRegistration(ResponsePayload):
     client_id: bytes
 
@@ -137,6 +124,18 @@ class ResponsePayloadSuccessfulRegistration(ResponsePayload):
 
     def pack(self) -> bytes:
         return self.client_id
+
+
+@dataclass
+class ResponsePayloadFailedRegistration(ResponsePayload):
+    def __len__(self):
+        return 0
+
+    def response_code(self) -> ResponseCode:
+        return ResponseCode.failed_registration
+
+    def pack(self) -> bytes:
+        return b''
 
 
 @dataclass

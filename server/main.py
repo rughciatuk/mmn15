@@ -15,9 +15,8 @@ def read_port():
 
 def main():
     db.get_or_create_db()
-    print("This is the server")
     port = read_port()
-    print("The port is", port)
+    print("Listing on port: ", port)
     main_server = server.Server(port)
 
     main_server.start()

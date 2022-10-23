@@ -16,7 +16,6 @@ Client Client::create(const SOCKET& client_sock, std::string& fallback_username)
 	}
 
 	Client new_user(client_sock, fallback_username);
-	// TODO: Need to check if we have user file before.
 	if (new_user.op_register())
 	{
 		// We can save the client data
@@ -50,15 +49,16 @@ Client::Client(const Client& client): sock_(client.sock_), name_(client.name_),
 
 bool Client::op_register()
 {
+	// Creating the registration header.
 	request_header header(
 		nullptr, request_header::registration, sizeof(request_payload_registration)
 	);
 
 	request_payload_registration registration_payload = {0};
 
-
 	memcpy(registration_payload.name, this->name_.c_str(), this->name_.size() + 1); // With null
 
+	// Sending the request to the server
 	send(this->sock_, reinterpret_cast<char*>(&header), sizeof(header), 0);
 	send(this->sock_, reinterpret_cast<char*>(&registration_payload), sizeof(registration_payload), 0);
 
@@ -136,7 +136,6 @@ bool Client::op_send_file(std::string& file_name, int num_of_retry)
 		return false;
 	}
 
-
 	// We need to encrypt the data.
 	const std::string enc_data = this->aes_wrapper_.encrypt(file_data.c_str(), file_data.size());
 
@@ -177,7 +176,6 @@ bool Client::op_send_file(std::string& file_name, int num_of_retry)
 	request_payload_crc_answer crc_payload;
 	memcpy(crc_payload.client_id, send_file_payload.client_id, CLIENT_ID_LEN);
 	memcpy(send_file_payload.file_name, file_name.c_str(), file_name.size() + 1);
-	
 
 	// The file was uploaded successfully
 	if (response_payload.cksum == cksum_value)
@@ -215,7 +213,6 @@ bool Client::op_send_file(std::string& file_name, int num_of_retry)
 		return this->op_send_file(file_name, num_of_retry - 1);
 	}
 }
-
 
 bool Client::save_me_info()
 {

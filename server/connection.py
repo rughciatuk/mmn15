@@ -11,9 +11,11 @@ import os
 import pathlib
 import uuid
 
+# Where the client files will be saved.
 CLIENTS_FILES_DIR = "data\\"
 
 
+# This is the main class, each client connection will create this class in order to handle the client.
 class ClientConnection(threading.Thread):
     def __init__(self, sock: socket.socket, addr: tuple):
         self.sock = sock
@@ -26,7 +28,9 @@ class ClientConnection(threading.Thread):
         header = protocol.ResponseHeader(version=3, code=payload.response_code(), payload_size=len(payload))
         self.sock.send(header.pack() + payload.pack())
 
+    # Handling the client.
     def run(self) -> None:
+        # Map each op code to the right function.
         req_mapper = {
             protocol.RequestCode.registration: self.op_registration,
             protocol.RequestCode.public_key: self.op_public_key,
@@ -37,25 +41,24 @@ class ClientConnection(threading.Thread):
             # Reading the next request header from the client.
             data = self.sock.recv(protocol.RequestHeader.length())
             next_request = protocol.RequestHeader(data)
+            # Running the handler for that function.
             req_mapper[next_request.code](next_request)
 
         self.sock.close()
 
-    def send_general_error(self, error_message):
-        payload = protocol.ResponsePayloadGeneralError(error_message)
+    def send_registration_error(self):
+        payload = protocol.ResponsePayloadFailedRegistration()
         self.send_response(payload)
 
     def op_registration(self, request_header: protocol.RequestHeader):
-        print("register_user", request_header)
+        print("register_user")
 
         # Reading the payload from the client.
         registration_data = protocol.RequestPayloadRegistration(self.sock.recv(request_header.payload_size))
 
-        print(registration_data)
-
         if db.check_user_exists(registration_data.name):
             print("User exists: ", registration_data.name)
-            self.send_general_error("User exists: " + registration_data.name)
+            self.send_registration_error()
         else:
             # We need to register the user
             print("Registering new user: ", registration_data.name)
@@ -64,7 +67,6 @@ class ClientConnection(threading.Thread):
             # Creating the client output dir
             os.mkdir(os.path.join(CLIENTS_FILES_DIR, str(uuid.UUID(bytes_le=new_uuid))))
 
-            print("New uuid: ", new_uuid)
             # Creating the response
             payload = protocol.ResponsePayloadSuccessfulRegistration(new_uuid)
             self.send_response(payload)
@@ -74,7 +76,6 @@ class ClientConnection(threading.Thread):
 
         # Reading the payload from the client.
         public_key_data = protocol.RequestPayloadPublicKey(self.sock.recv(request_header.payload_size))
-        print(public_key_data)
 
         # Loading the public and saving it in the db.
         db.update_public_key(request_header.client_id, public_key_data.public_key)
@@ -82,7 +83,6 @@ class ClientConnection(threading.Thread):
 
         # Generating a new AES key.
         new_AES_key = Crypto.Random.get_random_bytes(16)
-        print(new_AES_key)
         db.update_AES_key(request_header.client_id, new_AES_key)
 
         # Encrypt with the public key:
@@ -96,8 +96,6 @@ class ClientConnection(threading.Thread):
 
         # Reading the payload from the client
         send_file_data = protocol.RequestPayloadSendFile(self.sock.recv(request_header.payload_size))
-        print(send_file_data)
-
         enc_file_data = self.sock.recv(send_file_data.content_size)
 
         # Getting the aes key
@@ -109,10 +107,13 @@ class ClientConnection(threading.Thread):
 
         # Calculating the crc
         cksum = crc.crc32.calc_crc(file_data)
+
+        # Sending the response
         payload = protocol.ResponsePayloadFileReceived(send_file_data.client_id, send_file_data.content_size,
                                                        send_file_data.file_name, cksum)
         self.send_response(payload)
 
+        # Getting the response
         next_request_header = protocol.RequestHeader(self.sock.recv(protocol.RequestHeader.length()))
         next_request_body = protocol.RequestPayloadCrcAnswer(self.sock.recv(protocol.RequestPayloadCrcAnswer.length()))
         
@@ -125,6 +126,4 @@ class ClientConnection(threading.Thread):
                 out_file.write(file_data)
             db.new_file(send_file_data.file_name, file_path, True)
 
-            # TODO: save the file to the db. And in the fs
-            pass
         self.send_response(protocol.ResponsePayloadMessageReceived())

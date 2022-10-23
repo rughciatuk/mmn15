@@ -4,6 +4,7 @@ import uuid
 DB_PATH = "server.db"
 
 
+# Either getting the existing db or creating a new one.
 def get_or_create_db():
     with sqlite3.connect(DB_PATH) as con:
         sqlite3.register_adapter(uuid.UUID, lambda u: u.bytes_le)
@@ -98,5 +99,3 @@ def new_file(file_name: str, path_name: str, verified: bool):
         INSERT INTO files (ID, FileName, PathName, Verified) VALUES (?, ?, ?, ?);
         """, (uuid.uuid4(), file_name, path_name, verified))
         con.commit()
-
-

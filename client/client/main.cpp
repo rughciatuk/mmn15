@@ -6,9 +6,10 @@ int main()
 	std::string username;
 	std::string file_to_upload;
 
-
+	// Reading the transfer file.
 	get_data_from_transfer_file(server_sockaddr, username, file_to_upload);
 
+	// Setting up the windows socket.
 	WSADATA wsa_data;
 	int result = WSAStartup(MAKEWORD(2, 2), &wsa_data);
 	if (result != NO_ERROR)
@@ -29,16 +30,11 @@ int main()
 		std::cout << "Could not connect to the server: " << WSAGetLastError() << std::endl;
 	}
 
-
-	// Trying to read me file.
 	std::string private_key;
 	uint8_t client_id[CLIENT_ID_LEN];
 
-
 	// Create the client;
 	Client main_client = Client::create(connect_socket, username);
-
-	// TODO: Sending the file.
 
 	if(main_client.op_send_file(file_to_upload))
 	{

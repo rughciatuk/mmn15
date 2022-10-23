@@ -1,7 +1,6 @@
 #include "files.h"
 
 
-
 bool get_data_from_transfer_file(sockaddr_in& server_sockaddr, std::string& username, std::string& file_to_upload)
 {
 	std::ifstream transfer_file(TRANSFER_FILE);
@@ -67,7 +66,8 @@ bool get_data_from_me_info(std::string& username, uint8_t client_id[], std::stri
 	return true;
 }
 
-bool write_data_from_me_info(const std::string& username, uint8_t client_id[CLIENT_ID_LEN], const std::string& private_key)
+bool write_data_from_me_info(const std::string& username, uint8_t client_id[CLIENT_ID_LEN],
+                             const std::string& private_key)
 {
 	std::ofstream me_file(ME_FILE);
 
@@ -81,7 +81,7 @@ bool write_data_from_me_info(const std::string& username, uint8_t client_id[CLIE
 	me_file << username << std::endl;
 
 	// Writing the client id to the file.
-	for (int i=0; i< CLIENT_ID_LEN; i++)
+	for (int i = 0; i < CLIENT_ID_LEN; i++)
 	{
 		me_file << std::setfill('0') << std::setw(2) << std::right << std::hex << static_cast<int>(client_id[i]);
 	}
@@ -98,6 +98,7 @@ bool write_data_from_me_info(const std::string& username, uint8_t client_id[CLIE
 
 bool read_file(std::string& file_name, std::string& output)
 {
+	// Reading the file.
 	const std::ifstream file(file_name, std::ios::in | std::ios::binary);
 	if (!file)
 	{
@@ -110,4 +111,3 @@ bool read_file(std::string& file_name, std::string& output)
 	output = temp_buffer.str();
 	return true;
 }
-
