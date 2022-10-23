@@ -113,9 +113,10 @@ class ClientConnection(threading.Thread):
                                                        send_file_data.file_name, cksum)
         self.send_response(payload)
 
-        next_request_data = self.sock.recv(protocol.RequestHeader.length())
-        next_request = protocol.RequestHeader(next_request_data)
-        if next_request.code == protocol.RequestCode.CRC_correct:
+        next_request_header = protocol.RequestHeader(self.sock.recv(protocol.RequestHeader.length()))
+        next_request_body = protocol.RequestPayloadCrcAnswer(self.sock.recv(protocol.RequestPayloadCrcAnswer.length()))
+        
+        if next_request_header.code == protocol.RequestCode.CRC_correct:
             print("Correct CRC, saving the file")
             file_path = os.path.join(os.getcwd(), CLIENTS_FILES_DIR,
                                      str(uuid.UUID(bytes_le=request_header.client_id)),

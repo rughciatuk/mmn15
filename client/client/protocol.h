@@ -50,9 +50,15 @@ struct request_payload_pubic_key
 struct request_payload_send_file
 {
 	uint8_t client_id[CLIENT_ID_LEN]{};
-	uint32_t content_size;
-	char file_name[MAX_NAME_LEN];
+	uint32_t content_size{};
+	char file_name[MAX_NAME_LEN]{};
 };
+
+typedef struct request_payload_crc_answer
+{
+	uint8_t client_id[CLIENT_ID_LEN]{};
+	char file_name[MAX_NAME_LEN]{};
+} request_payload_crc_correct, request_payload_crc_failed, request_payload_crc_final_failed;
 
 class response_header
 {
@@ -60,10 +66,10 @@ public:
 	enum response_code : uint16_t
 	{
 		successful_registration = 2100,
+		failed_registration = 2101,
 		public_key_received = 2102,
 		file_correct_crc = 2103,
 		message_received = 2104,
-		server_general_error = 3100
 	};
 
 	response_header(SOCKET sock);

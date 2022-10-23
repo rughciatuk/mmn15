@@ -61,9 +61,22 @@ class RequestPayloadSendFile:
     file_name: str
 
     def __init__(self, data: bytes):
-        print(data)
         (self.client_id, self.content_size, temp_name) = struct.unpack("<16sI255s", data)
         self.file_name = temp_name.split(b'\x00')[0].decode("ascii")
+
+
+@dataclass
+class RequestPayloadCrcAnswer:
+    client_id: bytes
+    file_name: str
+
+    def __init__(self, data: bytes):
+        (self.client_id, temp_name) = struct.unpack("<16s255s", data)
+        self.file_name = temp_name.split(b'\x00')[0].decode("ascii")
+
+    @staticmethod
+    def length():
+        return 16 + 255
 
 
 # -------------------------------------------------------------------

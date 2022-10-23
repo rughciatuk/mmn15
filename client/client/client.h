@@ -26,7 +26,7 @@ public:
 	bool op_send_file(std::string& file_name, int num_of_retry = 3);
 	bool save_me_info();
 	void handle_server_general_error(const response_header& header) const;
-	void handle_server_general_error(const response_header& header, bool isExit) const;
+	void handle_failed_registration(const response_header& header, bool isExit) const;
 private:
 	const SOCKET& sock_;
 	const std::string name_;

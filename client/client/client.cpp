@@ -48,22 +48,6 @@ Client::Client(const Client& client): sock_(client.sock_), name_(client.name_),
 	memcpy((void*)this->client_id_, client.client_id_, CLIENT_ID_LEN);
 }
 
-void Client::handle_server_general_error(const response_header& header) const
-{
-	const auto server_error_text = new char[header.payload_size];
-	recv(this->sock_, server_error_text, header.payload_size, 0);
-	std::cout << "An error return from the server: " << server_error_text << std::endl;
-	delete[] server_error_text;
-}
-
-void Client::handle_server_general_error(const response_header& header, bool isExit) const
-{
-	this->handle_server_general_error(header);
-	std::cout << "Exiting..." << std::endl;
-	exit(1);
-}
-
-
 bool Client::op_register()
 {
 	request_header header(
@@ -88,10 +72,11 @@ bool Client::op_register()
 			std::cout << "Successful registration" << std::endl;
 			break;
 		}
-	case response_header::server_general_error:
+	case response_header::failed_registration:
 		{
-			// Handle server error, there is no need
-			this->handle_server_general_error(response, true);
+			// Failed to register
+			std::cout << "Failed to register" << std::endl;
+			exit(1);
 			break;
 		}
 	default:
@@ -189,11 +174,17 @@ bool Client::op_send_file(std::string& file_name, int num_of_retry)
 
 	recv(this->sock_, reinterpret_cast<char*>(&response_payload), response.payload_size, 0);
 
+	request_payload_crc_answer crc_payload;
+	memcpy(crc_payload.client_id, send_file_payload.client_id, CLIENT_ID_LEN);
+	memcpy(send_file_payload.file_name, file_name.c_str(), file_name.size() + 1);
+	
+
 	// The file was uploaded successfully
 	if (response_payload.cksum == cksum_value)
 	{
 		request_header answer_header(this->client_id_, request_header::crc_correct, 0);
 		send(this->sock_, reinterpret_cast<char*>(&answer_header), sizeof(header), 0);
+		send(this->sock_, reinterpret_cast<char*>(&crc_payload), sizeof(crc_payload), 0);
 		// We need to wait for the server ok.
 		const response_header answer_response(this->sock_);
 
@@ -204,6 +195,7 @@ bool Client::op_send_file(std::string& file_name, int num_of_retry)
 		std::cout << "Failed to upload and done retrying, Exiting..." << std::endl;
 		request_header answer_header(this->client_id_, request_header::crc_final_failed, 0);
 		send(this->sock_, reinterpret_cast<char*>(&answer_header), sizeof(header), 0);
+		send(this->sock_, reinterpret_cast<char*>(&crc_payload), sizeof(crc_payload), 0);
 		// We need to wait for the server ok.
 		const response_header answer_response(this->sock_);
 
@@ -215,13 +207,13 @@ bool Client::op_send_file(std::string& file_name, int num_of_retry)
 		// TODO: send crc not valid
 		request_header answer_header(this->client_id_, request_header::crc_failed, 0);
 		send(this->sock_, reinterpret_cast<char*>(&answer_header), sizeof(header), 0);
+		send(this->sock_, reinterpret_cast<char*>(&crc_payload), sizeof(crc_payload), 0);
+
 		// We need to wait for the server ok.
 		const response_header answer_response(this->sock_);
 
 		return this->op_send_file(file_name, num_of_retry - 1);
 	}
-
-	return true;
 }
 
 
